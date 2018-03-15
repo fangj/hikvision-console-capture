@@ -60,11 +60,13 @@ namespace ConsoleHikvision
             StopCloseConsoleOnDebug();
         }
 
-        static int RunOptionsAndReturnExitCode(CaptureOptions options)
+        static void RunOptionsAndReturnExitCode(CaptureOptions options)
         {
             InitCarema();
-            Connect(options.IP,options.Port,options.UserName,options.Password);
-            return Capture(options.OutFile);
+            Login(options.IP,options.Port,options.UserName,options.Password);
+            Capture(options.OutFile);
+            Logout(options.IP, options.Port);
+            CleanUpCarema();
         }
 
         static int HandleParseError(IEnumerable<Error> errors)
@@ -95,9 +97,14 @@ namespace ConsoleHikvision
             }
         }
 
+        static void CleanUpCarema()
+        {
+            CHCNetSDK.NET_DVR_Cleanup();
+        }
+
  
 
-        static private void Connect(string ip="192.168.3.64",int port=8000,string username="admin",string password= "haikang123")
+        static private void Login(string ip="192.168.3.64",int port=8000,string username="admin",string password= "haikang123")
         {
             CHCNetSDK.NET_DVR_DEVICEINFO_V30 DeviceInfo = new CHCNetSDK.NET_DVR_DEVICEINFO_V30();
             //登录设备 Login the device
@@ -116,6 +123,27 @@ namespace ConsoleHikvision
                 Debug.WriteLine("Login Success!");
             }
         }
+
+        static private void Logout(string ip = "192.168.3.64", int port = 8000)
+        {
+            //注销登录 Logout the device
+            if (m_lRealHandle >= 0)
+            {
+                Console.WriteLine("Please stop live view firstly");
+                return;
+            }
+
+            if (!CHCNetSDK.NET_DVR_Logout(m_lUserID))
+            {
+                iLastErr = CHCNetSDK.NET_DVR_GetLastError();
+                str = "NET_DVR_Logout failed, error code= " + iLastErr;
+                Console.WriteLine(str);
+                return;
+            }
+            m_lUserID = -1;
+        }
+
+
 
         static public int Capture(string outfile= "capture.jpg")
         {
