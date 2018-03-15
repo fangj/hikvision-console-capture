@@ -24,19 +24,19 @@ namespace ConsoleHikvision
         {
 
             // Omitting long name, defaults to name of property, ie "--verbose"
-            [Option('i',Default = "192.168.3.64",Required =true, HelpText = "The IP of carema.")]
+            [Option('i',Default = "192.168.3.64",Required =true, HelpText = "The IP of camera.")]
             public string IP { get; set; }
 
-            [Option("port", Default = 8000,  HelpText = "The port of carema.")]
+            [Option("port", Default = 8000,  HelpText = "The port of camera.")]
             public int Port { get; set; }
 
             [Option('o',Default = "capture.jpg",  HelpText = "The output jpeg file path.")]
             public string OutFile { get; set; }
 
-            [Option('u',Default = "admin", HelpText = "The user name for login carema.")]
+            [Option('u',Default = "admin", HelpText = "The user name for login camera.")]
             public string UserName { get; set; }
 
-            [Option('p',Default = "haikang123", HelpText = "The password for login carema..")]
+            [Option('p',Default = "haikang123", HelpText = "The password for login camera..")]
             public string Password { get; set; }
 
             [Usage(ApplicationAlias = "hikvision")]
@@ -62,11 +62,11 @@ namespace ConsoleHikvision
 
         static void RunOptionsAndReturnExitCode(CaptureOptions options)
         {
-            InitCarema();
+            InitCamera();
             Login(options.IP,options.Port,options.UserName,options.Password);
             Capture(options.OutFile);
             Logout(options.IP, options.Port);
-            CleanUpCarema();
+            CleanUpCamera();
         }
 
         static int HandleParseError(IEnumerable<Error> errors)
@@ -82,7 +82,7 @@ namespace ConsoleHikvision
                 Console.ReadLine();
             }
         }
-        static void InitCarema()
+        static void InitCamera()
         {
             m_bInitSDK = CHCNetSDK.NET_DVR_Init();
             if (m_bInitSDK == false)
@@ -97,7 +97,7 @@ namespace ConsoleHikvision
             }
         }
 
-        static void CleanUpCarema()
+        static void CleanUpCamera()
         {
             CHCNetSDK.NET_DVR_Cleanup();
         }
