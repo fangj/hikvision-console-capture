@@ -51,27 +51,23 @@ namespace ConsoleHikvision
 
         }
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            CommandLine.Parser.Default.ParseArguments<CaptureOptions>(args)
-           .WithParsed<CaptureOptions>(opts => RunOptionsAndReturnExitCode(opts))
-           .WithNotParsed((errs) => HandleParseError(errs));
-
-            StopCloseConsoleOnDebug();
+           return CommandLine.Parser.Default.ParseArguments<CaptureOptions>(args)
+                .MapResult(
+                    options => RunOptionsAndReturnExitCode(options),
+                    _ => 1);
         }
 
-        static void RunOptionsAndReturnExitCode(CaptureOptions options)
+        static int RunOptionsAndReturnExitCode(CaptureOptions options)
         {
             InitCamera();
             Login(options.IP,options.Port,options.UserName,options.Password);
             Capture(options.OutFile);
             Logout(options.IP, options.Port);
             CleanUpCamera();
-        }
-
-        static int HandleParseError(IEnumerable<Error> errors)
-        {
-            return -1;
+            StopCloseConsoleOnDebug();
+            return (int)iLastErr;
         }
 
         static void StopCloseConsoleOnDebug()
